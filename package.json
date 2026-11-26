@@ -1,0 +1,63 @@
+{
+  "name": "codexdeck",
+  "version": "0.1.2",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "main": "desktop/dist/main.js",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "test": "node tests/check-syntax.mjs && node tests/models.mjs && node tests/permissions.mjs && node tests/turns-page.mjs && node tests/history.mjs && node tests/usage.mjs && node tests/interaction.mjs && node tests/goals.mjs && node tests/agents-api.mjs && node tests/agents.mjs && node tests/questions.mjs && node tests/images.mjs",
+    "test:history:ui": "electron tests/history-ui.cjs",
+    "test:activity:ui": "electron tests/activity-ui.cjs",
+    "test:images:ui": "electron tests/images-ui.cjs",
+    "test:questions:ui": "electron tests/questions-ui.cjs",
+    "test:sync:ui": "electron tests/sync-ui.cjs",
+    "test:goals:ui": "electron tests/goals-ui.cjs",
+    "test:agents:ui": "electron tests/agents-ui.cjs",
+    "test:live": "node tests/smoke.mjs",
+    "test:ui": "electron tests/ui-check.cjs",
+    "test:web:ui": "electron tests/web-state.cjs",
+    "test:web:flow": "electron tests/web-flow.cjs",
+    "desktop:build": "tsc -p desktop/tsconfig.json",
+    "desktop:start": "npm run desktop:build && electron .",
+    "desktop:test": "npm run desktop:build && node --test desktop/tests/*.test.cjs",
+    "desktop:test:ui": "npm run desktop:build && electron desktop/tests/electron-smoke.cjs",
+    "desktop:test:gateway": "npm run desktop:build && electron desktop/tests/gateway-process-smoke.cjs",
+    "desktop:test:gateway-icon": "npm run desktop:build && electron desktop/tests/gateway-icon-smoke.cjs",
+    "desktop:test:store": "npm run desktop:build && electron desktop/tests/store-smoke.cjs",
+    "dist:win": "npm run desktop:build && node scripts/make-icon.mjs && electron-builder --win nsis portable"
+  },
+  "dependencies": {
+    "markdown-it": "14.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "electron": "44.4.5",
+    "electron-builder": "26.15.3",
+    "typescript": "5.9.3"
+  },
+  "build": {
+    "appId": "com.codexdeck.desktop",
+    "productName": "CodexDeck",
+    "directories": { "output": "release" },
+    "files": [
+      "desktop/dist/**/*",
+      "desktop/package.json",
+      "desktop/ui/**/*",
+      "public/assets/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      { "from": "src", "to": "gateway/src" },
+      { "from": "public", "to": "gateway/public" },
+      { "from": "node_modules/markdown-it/dist/markdown-it.min.js", "to": "gateway/node_modules/markdown-it/dist/markdown-it.min.js" },
+      { "from": "scripts/start-desktop-cdp.ps1", "to": "gateway/scripts/start-desktop-cdp.ps1" }
+    ],
+    "win": { "target": ["nsis", "portable"], "icon": "desktop/assets/codexdeck.ico" },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "pages": [
+    {
+      "path": "pages/connect/connect",
+      "style": {
+        "navigationBarTitleText": "连接 CodexDeck"
+      }
+    },
+    {
+      "path": "pages/browser/browser",
+      "style": {
+        "navigationStyle": "custom",
+        "disableScroll": true,
+        "app-plus": {
+          "bounce": "none",
+          "backgroundColorTop": "#f7f7f5",
+          "backgroundColorBottom": "#f7f7f5"
+        }
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarBackgroundColor": "#f7f7f5",
+    "backgroundColor": "#f7f7f5"
+  }
+}

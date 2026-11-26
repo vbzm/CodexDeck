@@ -1,0 +1,22 @@
+# 依赖和构建产物
+node_modules/
+/desktop/dist/
+/release/
+
+# 本地调试记录和测试截图
+/work/
+/Docs/截图/
+/desktop/screenshots/
+
+# 本地环境和签名凭据
+.env
+.env.*
+*.p12
+*.pfx
+*.p8
+*.pem
+*.key
+*.jks
+*.keystore
+*.mobileprovision
+*.provisionprofile

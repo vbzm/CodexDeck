@@ -1,0 +1,57 @@
+@supports (-moz-appearance: none) {
+  :where(.sidebar-scroll, .messages, .model-menu, .directory-list, .markdown-body pre, .activity-entry pre, .approval-section) { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) transparent; }
+  :where(.sidebar-scroll, .messages, .model-menu, .directory-list, .markdown-body pre, .activity-entry pre, .approval-section):hover { scrollbar-color: var(--scroll-thumb-hover) transparent; }
+}
+:where(.sidebar-scroll, .messages, .model-menu, .directory-list, .markdown-body pre, .activity-entry pre, .approval-section)::-webkit-scrollbar { width: 7px; height: 7px; }
+:where(.sidebar-scroll, .messages, .model-menu, .directory-list, .markdown-body pre, .activity-entry pre, .approval-section)::-webkit-scrollbar-track { background: transparent; }
+:where(.sidebar-scroll, .messages, .model-menu, .directory-list, .markdown-body pre, .activity-entry pre, .approval-section)::-webkit-scrollbar-thumb { border: 1px solid transparent; border-radius: 999px; background: var(--scroll-thumb); background-clip: padding-box; }
+:where(.sidebar-scroll, .messages, .model-menu, .directory-list, .markdown-body pre, .activity-entry pre, .approval-section):hover::-webkit-scrollbar-thumb, :where(.sidebar-scroll, .messages, .model-menu, .directory-list, .markdown-body pre, .activity-entry pre, .approval-section)::-webkit-scrollbar-thumb:hover { background-color: var(--scroll-thumb-hover); }
+
+@media (max-width: 700px) {
+  /* 外层不再作为滚动容器；键盘出现时只缩小消息区，标题和输入框留在页面内。 */
+  html { height: var(--mobile-height, 100dvh); min-height: 0; overflow: clip; }
+  body { height: 100%; min-height: 0; overflow: clip; }
+  .app { display: flex; flex-direction: column; height: 100%; }
+  .sidebar { position: fixed; z-index: 40; top: 0; bottom: 0; left: 0; width: min(88vw, 340px); box-shadow: 16px 0 45px #0003; transform: translateX(-110%); transition: transform .18s ease; }
+  .sidebar-resizer { display: none; }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-backdrop { position: fixed; z-index: 30; inset: 0; width: 100%; border: 0; background: #0008; }
+  .mobile-only { display: inline-grid; }
+  .close-sidebar { margin-left: auto; font-size: 23px; }
+  .project-create, .thread-action { opacity: 1; }
+  /* 覆盖旧版 App 注入的整屏高度，复用 app 已有的顶部安全区 padding。 */
+  .conversation { flex: 1; height: auto !important; }
+  .conversation-head { flex-shrink: 0; min-height: 68px; padding: 10px 14px; gap: 10px; }
+  .menu-button { flex: 0 0 auto; font-size: 17px; }
+  .conversation-title h1 { font-size: 14px; }
+  .conversation-title p { max-width: 64vw; }
+  .messages { padding: 18px 14px 23px; }
+  .item.user .item-body { max-width: 94%; }
+  .composer { padding: 8px 10px max(12px, env(safe-area-inset-bottom)); }
+  .composer textarea { min-height: 56px; max-height: 170px; }
+  .composer textarea, .goal-dialog textarea, .project-dialog input, .directory-dialog input, .auth-panel input { font-size: 16px; }
+  .goal-bar { gap: 2px; }
+  .goal-summary { flex-wrap: wrap; column-gap: 5px; row-gap: 2px; }
+  .goal-objective { flex-basis: calc(100% - 110px); }
+  .goal-usage { margin-left: 21px; font-size: 10px; }
+  .composer-leading { gap: 4px; }
+  .composer-trailing { gap: 2px; }
+  .permission-trigger { max-width: 104px; }
+  .settings-trigger { max-width: 125px; }
+  .settings-trigger span { overflow: hidden; text-overflow: ellipsis; }
+  .settings-popover { right: -36px; }
+  .directory-input { flex-wrap: wrap; }
+  .directory-input button { margin-left: auto; }
+  .approval-section { max-height: 48%; padding: 12px 14px; }
+  .approval-card { padding: 11px 12px; }
+  .message-footer { opacity: 1; }
+}
+
+@media (max-width: 420px) {
+  .settings-trigger span + span { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar, .project-toggle .chevron, .sidebar-resizer::after, .message-footer { transition: none; }
+  .running-spinner, .conversation-spinner, .scroll-to-bottom .typing-dot, .is-compacting .compaction-label { animation: none; }
+}

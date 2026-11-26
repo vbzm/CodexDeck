@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CodexDeck · 控制台</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'">
+  <link rel="icon" type="image/png" href="../../public/assets/codex-logo-dark.png">
+  <script src="theme-init.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="frame">
+    <aside class="sidebar" aria-label="控制台导航">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><strong>CodexDeck</strong><small>LOCAL</small></div>
+      <p class="nav-label">工作台</p>
+      <nav class="nav">
+        <button type="button" data-view="overview" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>概览</button>
+        <button type="button" data-view="logs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h13M7 9h13M7 14h13M7 19h13M3 4h.01M3 9h.01M3 14h.01M3 19h.01"/></svg>运行日志</button>
+        <button type="button" data-view="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l-1.9 1.9a1.6 1.6 0 0 0-1.8-.3l-1.2.5a1.6 1.6 0 0 0-1 1.5H10a1.6 1.6 0 0 0-1-1.5l-1.2-.5a1.6 1.6 0 0 0-1.8.3l-1.9-1.9a1.6 1.6 0 0 0 .3-1.8l-.5-1.2A1.6 1.6 0 0 0 2.4 13v-2A1.6 1.6 0 0 0 4 10l.5-1.2A1.6 1.6 0 0 0 4.2 7l1.9-1.9a1.6 1.6 0 0 0 1.8.3L9 4.9a1.6 1.6 0 0 0 1-1.5h3a1.6 1.6 0 0 0 1 1.5l1.2.5a1.6 1.6 0 0 0 1.8-.3L19 7a1.6 1.6 0 0 0-.3 1.8l.5 1.2A1.6 1.6 0 0 0 20.8 11v2a1.6 1.6 0 0 0-1.5 1z"/></svg>设置</button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-note"><strong>关闭窗口后仍在托盘运行</strong><p>从系统托盘可再次打开控制台，网关状态持续监控。</p></div>
+      <div class="sidebar-foot"><span><i></i>托盘常驻</span></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar"><div><div class="eyebrow">CODEX DESKTOP · LOCAL GATEWAY</div><h1 id="topTitle">控制台概览</h1></div><div class="top-actions"><span id="topStatus" class="status-tag" role="status">正在检查</span><button id="themeButton" class="icon-button" type="button" aria-label="切换深色或浅色主题" title="切换主题">◐</button></div></header>
+
+      <section id="overview" class="content" aria-label="概览">
+        <div class="hero"><div class="hero-copy"><span id="heroIcon" class="hero-icon warn" aria-hidden="true">·</span><div><h2 id="heroTitle">正在检查本机服务</h2><p id="heroDetail">启动器正在读取 Desktop、CDP 和网关状态。</p></div></div><div class="hero-actions"><button class="button" type="button" data-action="refresh">重新检查</button><button id="heroPrimary" class="button primary" type="button" data-action="startAll">启动全部</button></div></div>
+        <div class="section-head"><h2>本机服务</h2><p id="checkedAt">尚未检查</p></div>
+        <div class="cards">
+          <article class="card"><div class="card-head"><span class="service-icon codex-logo" aria-hidden="true"></span><div class="card-title"><h3>Codex Desktop</h3><p>受控桌面应用与 CDP 连接</p></div><span id="desktopBadge" class="badge warn">检查中</span></div><dl class="facts"><div><dt>应用状态</dt><dd id="desktopProcess">正在检查</dd></div><div><dt>CDP 地址</dt><dd id="desktopAddress">127.0.0.1:49397</dd></div><div><dt>连接方式</dt><dd>本机页面桥接</dd></div><div><dt>当前状态</dt><dd id="desktopOperation">正在检查</dd></div></dl><div class="card-actions"><button class="button small" type="button" data-action="startDesktop">启动 Desktop</button><button class="button small" type="button" data-action="restartDesktop">重启并启用 CDP</button><button class="button small danger" type="button" data-action="stopDesktop">停止</button></div></article>
+          <article class="card"><div class="card-head"><span class="service-icon" aria-hidden="true">⇄</span><div class="card-title"><h3>CodexDeck 网关</h3><p>浏览器与 Desktop 的本机连接</p></div><span id="gatewayBadge" class="badge warn">检查中</span></div><dl class="facts"><div><dt>进程状态</dt><dd id="gatewayProcess">正在检查</dd></div><div><dt>访问地址</dt><dd id="gatewayAddress">127.0.0.1:8787</dd></div><div><dt>连接状态</dt><dd id="gatewayConnection">正在检查</dd></div><div><dt>请求保护</dt><dd id="gatewayProtection">仅本机访问</dd></div></dl><div class="card-actions"><button class="button small" type="button" data-action="startGateway">启动网关</button><button class="button small danger" type="button" data-action="stopGateway">停止网关</button><button class="button small" type="button" data-action="openWeb">打开网页 ↗</button></div></article>
+        </div>
+        <div class="section-head"><h2>最近事件</h2><button class="text-link" type="button" data-view="logs">查看全部日志 →</button></div><div id="recentEvents" class="events"></div>
+      </section>
+
+      <section id="logs" class="content" aria-label="运行日志" hidden><h2 class="page-title">运行日志</h2><p class="page-subtitle">查看启动器、Codex Desktop 与网关的状态变化；日志保存在本机用户数据目录。</p><div class="toolbar"><div class="filters" role="group" aria-label="日志筛选"><button class="filter active" type="button" data-filter="all">全部</button><button class="filter" type="button" data-filter="gateway">网关</button><button class="filter" type="button" data-filter="desktop">Desktop</button></div><button id="copyLogs" class="button small" type="button">复制可见日志</button></div><div id="logList" class="log-list" role="log" aria-live="polite"></div></section>
+
+      <section id="settings" class="content" aria-label="设置" hidden>
+        <h2 class="page-title">设置</h2><p class="page-subtitle">配置启动器、网关和 Codex Desktop 的本机连接。</p>
+        <form id="settingsForm">
+          <div class="settings-group"><h3>网关连接</h3><p>网页和移动设备连接到这台电脑时使用。</p><div class="field-grid">
+            <div class="field"><label for="gatewayHost">监听地址</label><input id="gatewayHost" name="gatewayHost" spellcheck="false"><small>默认仅本机；对外访问建议设置令牌并使用可信网络。</small></div>
+            <div class="field"><label for="gatewayPort">HTTP 端口</label><input id="gatewayPort" name="gatewayPort" type="number" min="1" max="65535"></div>
+            <div class="field full"><label for="workspace">默认工作目录</label><input id="workspace" name="workspace" spellcheck="false"></div>
+            <div class="field full"><label for="gatewayToken">访问令牌</label><input id="gatewayToken" name="gatewayToken" type="password" autocomplete="new-password"><small id="tokenHint">留空表示保持当前令牌。</small><label class="clear-token"><input id="clearToken" type="checkbox"> 清除已保存的令牌</label></div>
+          </div></div>
+          <div class="settings-group"><h3>Codex Desktop</h3><p>CDP 只在本机开放。</p><div class="field-grid"><div class="field"><label for="cdpPort">CDP 端口</label><input id="cdpPort" name="cdpPort" type="number" min="1" max="65535"><small>修改后需要重新启动 Desktop 并启用 CDP。</small></div></div></div>
+          <div class="settings-group"><h3>启动行为</h3><p>窗口关闭后，启动器继续留在系统托盘。</p>
+            <label class="switch-row"><span><strong>打开控制台时启动全部</strong><small>Desktop 未运行时启动，再启动网关；需要重启时仍会请求确认。</small></span><input type="checkbox" name="startAllOnOpen"></label>
+            <label class="switch-row"><span><strong>随 Windows 登录启动</strong><small>仅安装版可用；启动时隐藏到托盘。</small></span><input type="checkbox" name="startAtLogin"></label>
+          </div>
+          <div class="settings-footer"><span>连接参数变更后会重启本启动器管理的网关。</span><button class="button primary" type="submit">保存设置</button></div>
+        </form>
+      </section>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <script src="renderer.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{
+    "name" : "CodexDeck",
+    "appid" : "__UNI__8ED280B",
+    "description" : "CodexDeck 手机客户端",
+    "versionName" : "0.1.0",
+    "versionCode" : 1,
+    "transformPx" : false,
+    "vueVersion" : "2",
+    "app-plus" : {
+        "usingComponents" : true,
+        "splashscreen" : {
+            "autoclose" : true,
+            "waiting" : true
+        },
+        "distribute" : {
+            "ios" : {
+                "dSYMs" : false
+            },
+            "android" : {},
+            "icons" : {
+                "ios" : {
+                    "appstore" : "static/icons/appstore.png",
+                    "iphone" : {
+                        "app@2x" : "static/icons/iphone-120.png",
+                        "app@3x" : "static/icons/iphone-180.png"
+                    },
+                    "ipad" : {
+                        "app" : "static/icons/ipad-76.png",
+                        "app@2x" : "static/icons/ipad-152.png",
+                        "proapp@2x" : "static/icons/ipad-167.png"
+                    }
+                },
+                "android" : {
+                    "hdpi" : "static/icons/android-72.png",
+                    "xhdpi" : "static/icons/android-96.png",
+                    "xxhdpi" : "static/icons/android-144.png",
+                    "xxxhdpi" : "static/icons/android-192.png"
+                }
+            }
+        }
+    }
+}

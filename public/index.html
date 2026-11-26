@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f7f5">
+    <title>CodexDeck</title>
+    <link rel="icon" type="image/png" href="/assets/codex-logo-dark.png">
+    <script src="/js/theme-init.js"></script>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/vendor/markdown-it.min.js" defer></script>
+    <script src="/js/app.js" type="module"></script>
+  </head>
+  <body>
+    <div class="app">
+      <button id="sidebarBackdrop" class="sidebar-backdrop" type="button" hidden aria-label="关闭侧边栏"></button>
+
+      <aside id="sidebar" class="sidebar" aria-label="项目和对话">
+        <div class="sidebar-top">
+          <div class="sidebar-brand">
+            <span class="brand-symbol" aria-hidden="true"></span>
+            <strong>CodexDeck</strong>
+            <span class="brand-tag">LOCAL</span>
+            <button id="closeSidebar" class="icon-button mobile-only close-sidebar" type="button" aria-label="关闭侧边栏">×</button>
+          </div>
+          <div class="new-thread-row">
+            <button id="newThread" class="new-thread-button" type="button"><span aria-hidden="true">＋</span>新建对话</button>
+            <button id="refreshThreads" class="icon-button refresh-button" type="button" aria-label="刷新对话" title="刷新对话">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 1-2.4-5.7M20 4v5h-5"/></svg>
+            </button>
+          </div>
+        </div>
+        <div id="sidebarResizer" class="sidebar-resizer" role="separator" tabindex="0" aria-label="调整侧边栏宽度" aria-orientation="vertical" aria-valuemin="220" aria-valuemax="420" aria-valuenow="280"></div>
+
+        <div class="sidebar-scroll">
+          <section class="sidebar-section">
+            <div class="section-heading">
+              <button id="activeToggle" class="section-toggle" type="button" aria-expanded="true" aria-controls="activeContent"><span class="section-chevron" aria-hidden="true"></span>进行中的对话</button>
+              <span id="activeCount" class="section-count"></span>
+            </div>
+            <div id="activeContent"><div id="activeList" class="thread-list" role="list"></div></div>
+          </section>
+
+          <section class="sidebar-section">
+            <div class="section-heading">
+              <button id="projectToggle" class="section-toggle" type="button" aria-expanded="true" aria-controls="projectContent"><span class="section-chevron" aria-hidden="true"></span>项目</button>
+              <div class="section-actions">
+                <span id="projectCount" class="section-count"></span>
+                <button id="newProject" class="icon-button section-create" type="button" aria-label="新建项目" title="新建项目">＋</button>
+              </div>
+            </div>
+            <div id="projectContent"><div id="projectList" class="project-list" aria-label="项目列表"></div></div>
+          </section>
+
+          <section class="sidebar-section">
+            <div class="section-heading recent-heading">
+              <button id="recentToggle" class="section-toggle" type="button" aria-expanded="true" aria-controls="recentContent"><span class="section-chevron" aria-hidden="true"></span>最近</button>
+              <button id="recentNewThread" class="icon-button section-create" type="button" aria-label="在默认工作目录新建对话" title="在默认工作目录新建对话">＋</button>
+            </div>
+            <div id="recentContent">
+              <div id="threadList" class="thread-list" role="list"></div>
+              <button id="moreThreads" class="more-button" type="button" hidden>显示更多对话</button>
+            </div>
+          </section>
+        </div>
+
+        <div class="sidebar-footer">
+          <span id="connection" class="connection offline" role="status">正在连接桌面</span>
+          <div class="sidebar-footer-actions">
+            <button id="gatewaySwitch" class="icon-button gateway-switch" type="button" aria-label="切换网关" title="切换网关" hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14 5l2.5-.3.9 2.3 2.2 1.2-.6 2.4 1.3 2.1-1.8 1.8.2 2.5-2.4.7-1.3 2.1-2.3-.8-2.3.8-1.3-2.1-2.4-.7.2-2.5-1.8-1.8 1.3-2.1-.6-2.4 2.2-1.2.9-2.3L10 5l2-1.5Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+            <button id="themeToggle" class="icon-button theme-toggle" type="button" aria-label="切换深色或浅色主题" title="切换主题">◐</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="conversation">
+        <header class="conversation-head">
+          <button id="menuButton" class="icon-button mobile-only menu-button" type="button" aria-label="打开项目和对话">☰</button>
+          <div class="conversation-title">
+            <span id="threadContext" class="thread-context">CODEX DESKTOP</span>
+            <h1 id="threadTitle">选择一个对话</h1>
+            <p id="threadMeta">与正在运行的 Codex Desktop 同步</p>
+          </div>
+        </header>
+
+        <div id="notice" class="notice" role="alert" hidden></div>
+        <div class="history-toolbar"><button id="olderTurns" class="text-button" type="button" hidden>加载更早的内容</button></div>
+        <div class="messages-shell">
+          <div id="messages" class="messages" role="log" aria-live="polite">
+            <div class="empty-state"><span class="empty-symbol" aria-hidden="true"></span><h2>选择一个对话</h2><p>从左侧项目或最近对话中选择，也可以新建对话。</p></div>
+          </div>
+          <button id="previousQuestion" class="previous-question" type="button" hidden aria-label="上一次提问" title="跳转到上一次提问，再次点击继续向前"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h12M12 19V9m-5 5 5-5 5 5"/></svg><span>上一次提问</span></button>
+          <button id="scrollToBottom" class="scroll-to-bottom" type="button" hidden aria-label="滚动到底部" title="滚动到底部"></button>
+        </div>
+
+        <section id="approvalSection" class="approval-section" hidden aria-label="待审批请求">
+          <div class="approval-heading">
+            <span class="approval-heading-icon" aria-hidden="true">!</span>
+            <div>
+              <h2>待审批请求</h2>
+              <p class="approval-hint">请核对操作内容后再决定是否允许。</p>
+            </div>
+          </div>
+          <div id="approvalList"></div>
+        </section>
+
+        <section id="questionSection" class="question-section" hidden aria-label="待回答的问题"></section>
+
+        <form id="composer" class="composer">
+          <div id="goalBar" class="goal-bar" hidden>
+            <button id="goalSummary" class="goal-summary" type="button" title="编辑目标" aria-label="编辑目标">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="m12 12 8-8m-5 0h5v5"/></svg>
+              <span id="goalStatus" class="goal-status" aria-live="polite"></span>
+              <span id="goalObjectiveSummary" class="goal-objective"></span>
+              <span id="goalUsage" class="goal-usage"></span>
+            </button>
+            <div class="goal-actions">
+              <button id="goalClear" class="icon-button" type="button" title="清除目标" aria-label="清除目标"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+              <button id="goalToggle" class="icon-button" type="button" title="暂停目标" aria-label="暂停目标"></button>
+              <button id="goalEdit" class="icon-button" type="button" title="编辑目标" aria-label="编辑目标"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15l-1 6Z"/></svg></button>
+            </div>
+          </div>
+          <p id="goalError" class="goal-error" role="status" hidden></p>
+          <div class="composer-inner">
+            <label for="messageInput" class="visually-hidden">消息</label>
+            <textarea id="messageInput" rows="3" placeholder="给 Codex 发送消息…" disabled></textarea>
+            <div class="composer-actions">
+              <div class="composer-leading">
+                <button id="addButton" class="add-button" type="button" disabled aria-label="添加附件（即将支持）" title="附件功能即将支持">+</button>
+                <button id="goalTrigger" class="goal-trigger" type="button" title="设置目标（/goal）" aria-label="设置目标" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="m12 12 8-8m-5 0h5v5"/></svg></button>
+                <div class="permission-anchor">
+                  <button id="permissionTrigger" class="permission-trigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="permissionPopover" title="选择权限设置">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 20 6v5.8c0 5.1-3.2 8.2-8 9.7-4.8-1.5-8-4.6-8-9.7V6l8-3.5Z"/><path d="M12 8v5m0 3h.01"/></svg>
+                    <span id="permissionLabel">请求批准</span>
+                  </button>
+                  <div id="permissionPopover" class="permission-popover" role="dialog" aria-label="权限设置" hidden>
+                    <div class="permission-heading"><span>应如何批准 ChatGPT 操作?</span><a href="https://developers.openai.com/codex/security" target="_blank" rel="noopener noreferrer">了解更多</a></div>
+                    <div class="permission-options" role="radiogroup" aria-label="权限设置">
+                      <button class="permission-option" type="button" role="radio" data-permission-mode="request" aria-checked="true">
+                        <span class="permission-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 12V7a1.5 1.5 0 0 1 3 0v4-6a1.5 1.5 0 0 1 3 0v6-4a1.5 1.5 0 0 1 3 0v5-2a1.5 1.5 0 0 1 3 0v5c0 4-2.5 6.5-6.5 6.5h-1c-2.5 0-4.3-1.2-5.5-3L3.6 15a1.5 1.5 0 0 1 2.4-1.8L7 14"/></svg></span><span class="permission-copy"><strong>请求批准</strong><small>编辑外部文件和使用互联网时始终询问</small></span><span class="permission-check" aria-hidden="true">✓</span>
+                      </button>
+                      <button class="permission-option" type="button" role="radio" data-permission-mode="auto" aria-checked="false">
+                        <span class="permission-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.3 2.3 4.8-5"/></svg></span><span class="permission-copy"><strong>帮我批准</strong><small>仅对检测到的风险操作请求批准</small></span><span class="permission-check" aria-hidden="true">✓</span>
+                      </button>
+                      <button class="permission-option" type="button" role="radio" data-permission-mode="full" aria-checked="false">
+                        <span class="permission-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.5 20 6v5.8c0 5.1-3.2 8.2-8 9.7-4.8-1.5-8-4.6-8-9.7V6l8-3.5Z"/><path d="M12 8v5m0 3h.01"/></svg></span><span class="permission-copy"><strong>完全访问权限</strong><small>可不受限制地访问互联网和你电脑上的任何文件</small></span><span class="permission-check" aria-hidden="true">✓</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="composer-trailing" aria-label="当前对话设置">
+                <button id="contextButton" class="context-button" type="button" aria-label="背景信息窗口：暂无用量">
+                  <span id="contextRing" class="context-ring" aria-hidden="true"></span>
+                  <span class="context-tooltip" role="tooltip"><strong>背景信息窗口</strong><span id="contextPercent">暂无用量</span><span id="contextUsage">发送消息后显示上下文用量</span></span>
+                </button>
+                <div class="settings-anchor">
+                  <button id="settingsTrigger" class="settings-trigger" type="button" aria-label="选择模型和思考等级" disabled><span id="modelLabel">模型 —</span><span id="effortLabel">思考 —</span></button>
+                  <div id="settingsPopover" class="settings-popover" hidden>
+                    <div id="settingsMain">
+                      <div class="effort-heading"><strong id="effortValue">—</strong><button id="resetSettings" class="icon-button" type="button" title="恢复当前对话设置" aria-label="恢复当前对话设置">↶</button></div>
+                      <button id="modelChoice" class="model-choice" type="button">模型 ›</button>
+                      <div class="effort-control">
+                        <input id="effortSlider" class="effort-slider" type="range" min="0" max="5" step="1" aria-label="思考等级">
+                        <div id="effortTicks" class="effort-ticks" aria-hidden="true"></div>
+                      </div>
+                    </div>
+                    <div id="modelMenu" class="model-menu" hidden><button id="modelBack" class="model-back" type="button">‹ 选择模型</button></div>
+                  </div>
+                </div>
+              </div>
+              <button id="sendMessage" class="send-button" type="submit" disabled aria-label="发送消息">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>
+              </button>
+            </div>
+          </div>
+        </form>
+      </main>
+    </div>
+
+    <dialog id="goalDialog" class="project-dialog goal-dialog" aria-labelledby="goalDialogTitle">
+      <form id="goalForm">
+        <div class="dialog-heading"><div><h2 id="goalDialogTitle">目标</h2><p>聊天处于空闲状态时，ChatGPT 会继续推进此目标</p></div></div>
+        <label for="goalObjective">目标</label>
+        <textarea id="goalObjective" rows="6" maxlength="20000" required placeholder="描述你的目标，定义可衡量的成果，以获得最佳效果"></textarea>
+        <p id="goalDialogError" class="dialog-error" role="alert" hidden></p>
+        <div class="dialog-actions"><button id="goalDialogClear" class="danger-button" type="button" hidden>清除目标</button><button id="goalCancel" class="subtle-button" type="button">取消</button><button id="goalSave" class="primary-button" type="submit">保存</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="projectDialog" class="project-dialog" aria-labelledby="projectDialogTitle">
+      <form id="projectForm">
+        <div class="dialog-heading">
+          <span class="dialog-folder" aria-hidden="true">▱</span>
+          <div><h2 id="projectDialogTitle">新建项目</h2><p>将电脑上已有的目录加入 Codex Desktop 项目列表。</p></div>
+        </div>
+        <label for="projectName">项目名称</label>
+        <input id="projectName" name="projectName" type="text" maxlength="100" required autocomplete="off" placeholder="例如：CodexDeck">
+        <label for="projectPath">项目目录</label>
+        <div class="directory-input"><input id="projectPath" name="projectPath" type="text" required autocomplete="off" spellcheck="false" placeholder="选择电脑上的目录"><button id="browseProject" class="subtle-button" type="button">选择目录…</button></div>
+        <p class="dialog-permission">创建项目会信任此目录。Codex 可以读取、编辑和运行其中的文件，文件夹设置也可能自动运行代码。请仅添加你信任的目录。</p>
+        <p id="projectError" class="dialog-error" role="alert" hidden></p>
+        <div class="dialog-actions">
+          <button id="cancelProject" class="subtle-button" type="button">取消</button>
+          <button id="createProject" class="primary-button" type="submit">信任并创建</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="directoryDialog" class="directory-dialog" aria-labelledby="directoryTitle">
+      <div class="directory-dialog-inner">
+        <div class="directory-heading"><h2 id="directoryTitle">选择电脑上的目录</h2><p>浏览网关所在电脑的文件夹。</p></div>
+        <div class="directory-toolbar"><button id="directoryUp" class="icon-button" type="button" aria-label="返回上级目录" title="返回上级目录">↑</button><span id="directoryCurrent">此电脑</span></div>
+        <div id="directoryList" class="directory-list" role="listbox" aria-label="文件夹列表"></div>
+        <p id="directoryError" class="dialog-error" role="alert" hidden></p>
+        <div class="dialog-actions"><button id="directoryCancel" class="subtle-button" type="button">取消</button><button id="directorySelect" class="primary-button" type="button">选择此目录</button></div>
+      </div>
+    </dialog>
+
+    <section id="authPanel" class="auth-panel" hidden aria-label="网关访问令牌">
+      <form id="authForm" class="auth-card">
+        <h2>连接网关</h2>
+        <p>输入本机网关设置的访问令牌。令牌只保存在当前浏览器会话中。</p>
+        <label for="tokenInput">访问令牌</label>
+        <input id="tokenInput" type="password" autocomplete="off" required>
+        <button class="primary-button" type="submit">连接</button>
+      </form>
+    </section>
+  </body>
+</html>

@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CodexDeck · 控制台原型</title>
+  <link rel="icon" type="image/png" href="../public/assets/codex-logo-dark.png">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #fff;
+      --sidebar: #f7f7f5;
+      --panel: #fafaf9;
+      --line: #e7e8e4;
+      --text: #242624;
+      --muted: #747972;
+      --soft: #a1a69f;
+      --hover: #eeefeb;
+      --selected: #e9ebe6;
+      --accent: #242724;
+      --accent-text: #fff;
+      --good: #268451;
+      --good-bg: #eaf6ee;
+      --warn: #9c671b;
+      --warn-bg: #fff4df;
+      --bad: #b04c42;
+      --bad-bg: #fff0ed;
+      --outer: #e9eae7;
+      --shadow: 0 18px 55px #17201910;
+      --logo-url: url("../public/assets/codex-logo-dark.png");
+      --scroll-thumb: #a9ada88c;
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #202122;
+      --sidebar: #191a1b;
+      --panel: #27292a;
+      --line: #383a3b;
+      --text: #e8e9e6;
+      --muted: #a1a5a0;
+      --soft: #787d78;
+      --hover: #2d3030;
+      --selected: #303433;
+      --accent: #e6e8e4;
+      --accent-text: #1c1e1c;
+      --good: #83d6a2;
+      --good-bg: #213b2b;
+      --warn: #f4c778;
+      --warn-bg: #3d3322;
+      --bad: #f1a299;
+      --bad-bg: #432927;
+      --outer: #111313;
+      --shadow: 0 18px 55px #0005;
+      --logo-url: url("../public/assets/codex-logo-light.png");
+      --scroll-thumb: #777b80a8;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html, body { min-height: 100%; margin: 0; }
+    body { background: var(--outer); color: var(--text); font: 13px/1.5 Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei UI", sans-serif; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .45; }
+    button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #7da88e; outline-offset: 2px; }
+    .frame { display: grid; grid-template-columns: 176px minmax(0, 1fr); width: min(820px, calc(100% - 32px)); height: min(580px, calc(100dvh - 32px)); margin: 16px auto; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); box-shadow: var(--shadow); }
+    .sidebar { display: flex; flex-direction: column; min-width: 0; min-height: 0; border-right: 1px solid var(--line); background: var(--sidebar); }
+    .brand { display: flex; align-items: center; gap: 7px; padding: 19px 12px 22px; font-size: 13px; letter-spacing: -.03em; white-space: nowrap; }
+    .brand-mark { display: inline-block; flex: 0 0 24px; width: 24px; height: 24px; background: var(--logo-url) center / contain no-repeat; }
+    .brand strong { font-weight: 700; }
+    .brand small { margin-left: auto; padding: 2px 4px; border: 1px solid var(--line); border-radius: 4px; color: var(--soft); font-size: 8px; font-weight: 700; letter-spacing: .04em; }
+    .nav-label { margin: 0 14px 8px; color: var(--soft); font-size: 10px; font-weight: 700; letter-spacing: .1em; }
+    .nav { display: grid; gap: 3px; padding: 0 8px; }
+    .nav button { display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 9px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); text-align: left; font-weight: 560; }
+    .nav button:hover { background: var(--hover); color: var(--text); }
+    .nav button[aria-current="page"] { background: var(--selected); color: var(--text); font-weight: 680; }
+    .nav svg { width: 17px; height: 17px; flex: 0 0 auto; stroke: currentColor; stroke-width: 1.7; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .sidebar-spacer { flex: 1; }
+    .sidebar-note { margin: 12px 8px; padding: 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); }
+    .sidebar-note strong { display: block; margin-bottom: 4px; font-size: 11px; }
+    .sidebar-note p { margin: 0; color: var(--muted); font-size: 10.5px; line-height: 1.55; }
+    .sidebar-foot { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 10px; border-top: 1px solid var(--line); }
+    .sidebar-foot span { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 10px; }
+    .sidebar-foot i, .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 3px var(--good-bg); }
+    .icon-button { display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); font-size: 18px; }
+    .icon-button:hover { background: var(--hover); color: var(--text); }
+    .main { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; background: var(--bg); }
+    .topbar { display: flex; align-items: center; justify-content: space-between; flex: 0 0 auto; gap: 12px; min-height: 72px; padding: 12px 20px; border-bottom: 1px solid var(--line); }
+    .eyebrow { color: var(--soft); font-size: 10px; font-weight: 750; letter-spacing: .12em; }
+    h1 { margin: 3px 0 0; font-size: 17px; font-weight: 690; letter-spacing: -.035em; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .prototype-tag { padding: 5px 9px; border: 1px solid var(--line); border-radius: 6px; color: var(--muted); font-size: 10px; white-space: nowrap; }
+    .content { flex: 1 1 auto; min-height: 0; width: 100%; padding: 18px 20px 24px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) transparent; }
+    .demo-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding: 9px 12px; border: 1px dashed var(--line); border-radius: 8px; background: var(--panel); color: var(--muted); font-size: 11px; }
+    .demo-bar strong { color: var(--text); }
+    .demo-bar select { max-width: 170px; padding: 5px 25px 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--text); font-size: 11px; }
+    .hero { display: flex; align-items: stretch; flex-direction: column; gap: 13px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 11px; background: var(--panel); }
+    .hero-copy { display: flex; align-items: flex-start; gap: 13px; min-width: 0; }
+    .hero-icon { display: grid; place-items: center; flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%; background: var(--good-bg); color: var(--good); font-size: 17px; font-weight: 700; }
+    .hero-icon.warn { background: var(--warn-bg); color: var(--warn); }
+    .hero-icon.bad { background: var(--bad-bg); color: var(--bad); }
+    .hero h2 { margin: 0 0 4px; font-size: 17px; font-weight: 690; letter-spacing: -.025em; }
+    .hero p { margin: 0; color: var(--muted); font-size: 11.5px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 34px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--text); font-size: 11.5px; font-weight: 650; white-space: nowrap; }
+    .button:hover:not(:disabled) { background: var(--hover); }
+    .button.primary { border-color: var(--accent); background: var(--accent); color: var(--accent-text); }
+    .button.primary:hover:not(:disabled) { filter: brightness(.9); }
+    .button.danger { color: var(--bad); }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 20px 0 9px; }
+    .section-head h2 { margin: 0; font-size: 13px; font-weight: 690; }
+    .section-head p { margin: 0; color: var(--muted); font-size: 10.5px; }
+    .cards { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .card { min-width: 0; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+    .card-head { display: flex; align-items: flex-start; gap: 10px; }
+    .service-icon { display: grid; place-items: center; flex: 0 0 auto; width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--text); font-size: 17px; }
+    .service-icon.codex-logo { background: var(--logo-url) center / 20px 20px no-repeat, var(--panel); }
+    .card-title { min-width: 0; flex: 1; }
+    .card-title h3 { margin: 0; font-size: 12.5px; font-weight: 690; }
+    .card-title p { margin: 2px 0 0; color: var(--muted); font-size: 10.5px; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 7px; border-radius: 5px; background: var(--good-bg); color: var(--good); font-size: 10px; font-weight: 700; white-space: nowrap; }
+    .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .badge.warn { background: var(--warn-bg); color: var(--warn); }
+    .badge.bad { background: var(--bad-bg); color: var(--bad); }
+    .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 10px; margin: 14px 0 12px; }
+    .facts div { min-width: 0; }
+    .facts dt { margin: 0 0 3px; color: var(--soft); font-size: 10px; }
+    .facts dd { overflow: hidden; margin: 0; color: var(--text); font-size: 11px; font-weight: 590; text-overflow: ellipsis; white-space: nowrap; }
+    .card-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 11px; border-top: 1px solid var(--line); }
+    .button.small { min-height: 30px; padding: 5px 9px; font-size: 10.5px; }
+    .events { overflow: hidden; border: 1px solid var(--line); border-radius: 10px; }
+    .event { display: grid; grid-template-columns: 56px 10px minmax(0, 1fr); align-items: center; gap: 11px; min-height: 35px; padding: 7px 12px; font-size: 11px; }
+    .event + .event { border-top: 1px solid var(--line); }
+    .event time { color: var(--soft); font-variant-numeric: tabular-nums; }
+    .event i { width: 6px; height: 6px; border-radius: 50%; background: var(--good); }
+    .event.warn i { background: var(--warn); }
+    .event.bad i { background: var(--bad); }
+    .event span { overflow-wrap: anywhere; }
+    .text-link { border: 0; background: transparent; color: var(--muted); font-size: 10.5px; }
+    .text-link:hover { color: var(--text); text-decoration: underline; }
+    .page-title { margin: 0 0 5px; font-size: 17px; font-weight: 690; letter-spacing: -.025em; }
+    .page-subtitle { margin: 0 0 18px; color: var(--muted); font-size: 11px; }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .filters { display: flex; gap: 5px; }
+    .filter { padding: 6px 10px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--muted); font-size: 11px; }
+    .filter:hover { background: var(--hover); }
+    .filter.active { border-color: var(--line); background: var(--panel); color: var(--text); font-weight: 650; }
+    .log-list { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+    .log-row { display: grid; grid-template-columns: 60px 56px minmax(0, 1fr); gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--line); font: 11px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .log-row time { color: var(--soft); }
+    .log-row b { color: var(--good); font-weight: 650; }
+    .log-row.warn b { color: var(--warn); }
+    .log-row.bad b { color: var(--bad); }
+    .log-row span { overflow-wrap: anywhere; }
+    .settings-group { margin-bottom: 14px; padding: 16px; border: 1px solid var(--line); border-radius: 10px; }
+    .settings-group h3 { margin: 0 0 3px; font-size: 12.5px; }
+    .settings-group > p { margin: 0 0 18px; color: var(--muted); font-size: 10.5px; }
+    .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 17px; }
+    .field { display: grid; gap: 5px; min-width: 0; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { font-size: 10.5px; font-weight: 650; }
+    .field input { width: 100%; min-height: 34px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); color: var(--text); font-size: 11px; }
+    .field small { color: var(--muted); font-size: 10px; }
+    .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; }
+    .switch-row + .switch-row { border-top: 1px solid var(--line); }
+    .switch-row strong { display: block; font-size: 11px; }
+    .switch-row small { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; }
+    .switch-row input { appearance: none; flex: 0 0 auto; width: 32px; height: 18px; margin: 0; border-radius: 12px; background: var(--line); cursor: pointer; }
+    .switch-row input::after { content: ""; display: block; width: 14px; height: 14px; margin: 2px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px #0003; transition: transform .16s ease; }
+    .switch-row input:checked { background: var(--good); }
+    .switch-row input:checked::after { transform: translateX(14px); }
+    .settings-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 10px; }
+    .tray-wrap { position: relative; }
+    .tray-menu { position: absolute; right: 0; bottom: 37px; z-index: 10; width: 210px; padding: 6px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); box-shadow: var(--shadow); }
+    .tray-menu button { display: block; width: 100%; padding: 7px 9px; border: 0; border-radius: 5px; background: transparent; color: var(--text); text-align: left; font-size: 11px; }
+    .tray-menu button:hover { background: var(--hover); }
+    .tray-menu hr { margin: 5px 4px; border: 0; border-top: 1px solid var(--line); }
+    .toast { position: fixed; right: 32px; bottom: 25px; z-index: 20; max-width: min(360px, calc(100% - 36px)); padding: 10px 13px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); box-shadow: var(--shadow); color: var(--text); font-size: 11px; }
+    @media (max-width: 850px) {
+      .frame { width: min(820px, calc(100% - 20px)); height: min(580px, calc(100dvh - 20px)); margin: 10px auto; }
+    }
+    @media (max-width: 620px) {
+      body { background: var(--bg); }
+      .frame { display: flex; flex-direction: column; width: 100%; height: 100dvh; margin: 0; border: 0; border-radius: 0; box-shadow: none; }
+      .sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
+      .brand { padding: 12px 16px 10px; }
+      .nav-label, .sidebar-note, .sidebar-foot, .sidebar-spacer { display: none; }
+      .nav { display: flex; padding: 0 9px 7px; }
+      .nav button { justify-content: center; gap: 6px; padding: 7px 9px; font-size: 11px; }
+      .nav svg { width: 15px; height: 15px; }
+      .main { flex: 1 1 auto; }
+      .topbar { min-height: 66px; padding: 12px 16px; }
+      .prototype-tag { display: none; }
+      .content { padding: 17px 16px 24px; }
+      .hero { padding: 16px; }
+      .field-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .settings-group { padding: 16px; }
+      .settings-footer { align-items: flex-start; flex-direction: column; }
+      .demo-bar { align-items: flex-start; flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <aside class="sidebar" aria-label="控制台导航">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><strong>CodexDeck</strong><small>LOCAL</small></div>
+      <p class="nav-label">工作台</p>
+      <nav class="nav">
+        <button type="button" data-view="overview" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>概览</button>
+        <button type="button" data-view="logs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h13M7 9h13M7 14h13M7 19h13M3 4h.01M3 9h.01M3 14h.01M3 19h.01"/></svg>运行日志</button>
+        <button type="button" data-view="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l-1.9 1.9a1.6 1.6 0 0 0-1.8-.3l-1.2.5a1.6 1.6 0 0 0-1 1.5H10a1.6 1.6 0 0 0-1-1.5l-1.2-.5a1.6 1.6 0 0 0-1.8.3l-1.9-1.9a1.6 1.6 0 0 0 .3-1.8l-.5-1.2A1.6 1.6 0 0 0 2.4 13v-2A1.6 1.6 0 0 0 4 10l.5-1.2A1.6 1.6 0 0 0 4.2 7l1.9-1.9a1.6 1.6 0 0 0 1.8.3L9 4.9a1.6 1.6 0 0 0 1-1.5h3a1.6 1.6 0 0 0 1 1.5l1.2.5a1.6 1.6 0 0 0 1.8-.3L19 7a1.6 1.6 0 0 0-.3 1.8l.5 1.2A1.6 1.6 0 0 0 20.8 11v2a1.6 1.6 0 0 0-1.5 1z"/></svg>设置</button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-note"><strong>关闭窗口后仍在托盘运行</strong><p>从系统托盘可再次打开控制台，网关状态持续监控。</p></div>
+      <div class="sidebar-foot"><span><i></i>托盘正在运行</span><div class="tray-wrap"><button id="trayButton" class="icon-button" type="button" title="预览托盘菜单" aria-label="预览托盘菜单" aria-expanded="false">⋯</button><div id="trayMenu" class="tray-menu" hidden><button type="button" data-tray="show">显示控制台</button><button type="button" data-tray="start">启动全部</button><button type="button" data-tray="web">打开聊天网页</button><hr><button type="button" data-tray="stop">停止网关</button><button type="button" data-tray="exit">退出 CodexDeck</button></div></div></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar"><div><div class="eyebrow">CODEX DESKTOP · LOCAL GATEWAY</div><h1 id="topTitle">控制台概览</h1></div><div class="top-actions"><span class="prototype-tag">界面原型 · 模拟数据</span><button id="themeButton" class="icon-button" type="button" aria-label="切换深色或浅色主题" title="切换主题">◐</button></div></header>
+
+      <section id="overview" class="content" aria-label="概览">
+        <div class="demo-bar"><span><strong>原型演示</strong> · 可切换场景、点击按钮；不会操作本机服务。</span><label>演示场景 <select id="sceneSelect"><option value="running">全部运行中</option><option value="desktopOnly">仅 Desktop 运行</option><option value="stopped">尚未启动</option><option value="needsRestart">Desktop 需重启</option><option value="conflict">网关端口占用</option><option value="disconnected">Desktop 已断开</option></select></label></div>
+        <div class="hero"><div class="hero-copy"><span id="heroIcon" class="hero-icon" aria-hidden="true">✓</span><div><h2 id="heroTitle">服务已就绪</h2><p id="heroDetail">Codex Desktop 与网关均正常运行，可以打开聊天网页。</p></div></div><div class="hero-actions"><button id="heroSecondary" class="button" type="button" data-action="refresh">重新检查</button><button id="heroPrimary" class="button primary" type="button" data-action="openWeb">打开聊天网页 ↗</button></div></div>
+        <div class="section-head"><h2>本机服务</h2><p id="checkedAt">刚刚检查</p></div>
+        <div class="cards">
+          <article class="card"><div class="card-head"><span class="service-icon codex-logo" aria-hidden="true"></span><div class="card-title"><h3>Codex Desktop</h3><p>受控桌面应用与 CDP 连接</p></div><span id="desktopBadge" class="badge">已连接</span></div><dl class="facts"><div><dt>应用状态</dt><dd id="desktopProcess">正在运行</dd></div><div><dt>CDP 地址</dt><dd id="desktopAddress">127.0.0.1:49397</dd></div><div><dt>连接方式</dt><dd>本机页面桥接</dd></div><div><dt>当前操作</dt><dd id="desktopOperation">可正常使用</dd></div></dl><div class="card-actions"><button class="button small" type="button" data-action="startDesktop">启动 Desktop</button><button class="button small" type="button" data-action="restartDesktop">重启并启用 CDP</button><button class="button small danger" type="button" data-action="stopDesktop">停止</button></div></article>
+          <article class="card"><div class="card-head"><span class="service-icon" aria-hidden="true">⇄</span><div class="card-title"><h3>CodexDeck 网关</h3><p>浏览器与 Desktop 的本机连接</p></div><span id="gatewayBadge" class="badge">运行中</span></div><dl class="facts"><div><dt>进程状态</dt><dd id="gatewayProcess">由启动器管理</dd></div><div><dt>访问地址</dt><dd id="gatewayAddress">127.0.0.1:8787</dd></div><div><dt>连接状态</dt><dd id="gatewayConnection">Desktop 已连接</dd></div><div><dt>请求保护</dt><dd>仅本机访问</dd></div></dl><div class="card-actions"><button class="button small" type="button" data-action="startGateway">启动网关</button><button class="button small danger" type="button" data-action="stopGateway">停止网关</button><button class="button small" type="button" data-action="openWeb">打开网页 ↗</button></div></article>
+        </div>
+        <div class="section-head"><h2>最近事件</h2><button class="text-link" type="button" data-view="logs">查看全部日志 →</button></div><div id="recentEvents" class="events"></div>
+      </section>
+
+      <section id="logs" class="content" aria-label="运行日志" hidden><h2 class="page-title">运行日志</h2><p class="page-subtitle">查看启动器、Codex Desktop 与网关的状态变化。正式版会保存本机日志文件。</p><div class="toolbar"><div class="filters" role="group" aria-label="日志筛选"><button class="filter active" type="button" data-filter="all">全部</button><button class="filter" type="button" data-filter="gateway">网关</button><button class="filter" type="button" data-filter="desktop">Desktop</button></div><button id="copyLogs" class="button small" type="button">复制可见日志</button></div><div id="logList" class="log-list" role="log" aria-live="polite"></div></section>
+
+      <section id="settings" class="content" aria-label="设置" hidden><h2 class="page-title">设置</h2><p class="page-subtitle">调整服务启动方式与本机连接参数。原型中的保存不会修改实际配置。</p><form id="settingsForm"><div class="settings-group"><h3>网关连接</h3><p>网页和移动设备连接到这台电脑时使用。</p><div class="field-grid"><div class="field"><label for="gatewayHost">监听地址</label><input id="gatewayHost" name="gatewayHost" value="127.0.0.1" spellcheck="false"><small>默认仅本机；对外访问需令牌与可信网络。</small></div><div class="field"><label for="gatewayPort">HTTP 端口</label><input id="gatewayPort" name="gatewayPort" type="number" min="1" max="65535" value="8787"></div><div class="field full"><label for="workspace">默认工作目录</label><input id="workspace" name="workspace" value="C:\Projects\CodexDeck" spellcheck="false"></div><div class="field full"><label for="gatewayToken">访问令牌</label><input id="gatewayToken" name="gatewayToken" type="password" placeholder="未设置 · 仅本机监听时可留空" autocomplete="new-password"><small>正式版会加密保存；此原型不会读取或保存真实令牌。</small></div></div></div><div class="settings-group"><h3>Codex Desktop</h3><p>桌面应用的 CDP 只在本机开放。</p><div class="field-grid"><div class="field"><label for="cdpPort">CDP 端口</label><input id="cdpPort" name="cdpPort" type="number" min="1" max="65535" value="49397"><small>修改后需要重新启动 Desktop 并启用 CDP。</small></div></div></div><div class="settings-group"><h3>启动行为</h3><p>窗口关闭后，启动器继续留在系统托盘。</p><label class="switch-row"><span><strong>打开控制台时启动全部</strong><small>Desktop 未运行时启动，再启动网关。</small></span><input type="checkbox" name="startAllOnOpen" aria-label="打开控制台时启动全部"></label><label class="switch-row"><span><strong>随 Windows 登录启动</strong><small>安装版可用；便携版默认关闭。</small></span><input type="checkbox" name="startAtLogin" aria-label="随 Windows 登录启动"></label></div><div class="settings-footer"><span>更改端口或令牌后，正式版会提示重启相关服务。</span><button class="button primary" type="submit">保存设置</button></div></form></section>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const scenes = {
+      running: { hero: '服务已就绪', detail: 'Codex Desktop 与网关均正常运行，可以打开聊天网页。', tone: 'good', desktop: '已连接', desktopProcess: '正在运行', desktopOperation: '可正常使用', gateway: '运行中', gatewayProcess: '由启动器管理', gatewayConnection: 'Desktop 已连接', primary: '打开聊天网页 ↗', action: 'openWeb' },
+      desktopOnly: { hero: '网关尚未启动', detail: 'Codex Desktop 已就绪，启动网关后可在浏览器中使用。', tone: 'warn', desktop: '已连接', desktopProcess: '正在运行', desktopOperation: '可正常使用', gateway: '已停止', gatewayProcess: '未运行', gatewayConnection: '等待启动', primary: '启动网关', action: 'startGateway' },
+      stopped: { hero: '服务尚未启动', detail: '点击“启动全部”，依次检查 Desktop、CDP 和网关。', tone: 'warn', desktop: '已停止', desktopProcess: '未运行', desktopOperation: '等待启动', gateway: '已停止', gatewayProcess: '未运行', gatewayConnection: '等待 Desktop', primary: '启动全部', action: 'startAll' },
+      needsRestart: { hero: '需要重启 Codex Desktop', detail: 'Desktop 正在运行，但未启用 CDP。请先保存工作，再确认重启。', tone: 'warn', desktop: '需重启', desktopProcess: '正在运行', desktopOperation: 'CDP 未启用', gateway: '已停止', gatewayProcess: '未运行', gatewayConnection: '等待 CDP', primary: '重启并启用 CDP', action: 'restartDesktop' },
+      conflict: { hero: '网关端口被占用', detail: '8787 端口已有其他服务。请检查日志或在设置中更换端口。', tone: 'bad', desktop: '已连接', desktopProcess: '正在运行', desktopOperation: '可正常使用', gateway: '启动失败', gatewayProcess: '端口 8787 被占用', gatewayConnection: '未连接', primary: '查看日志', action: 'viewLogs' },
+      disconnected: { hero: 'Desktop 连接已断开', detail: '网关仍在运行；重新启动 Desktop 并启用 CDP 后会恢复连接。', tone: 'bad', desktop: '已停止', desktopProcess: '未运行', desktopOperation: '等待启动', gateway: '运行中', gatewayProcess: '由启动器管理', gatewayConnection: 'Desktop 已断开', primary: '启动 Desktop', action: 'startDesktop' }
+    };
+    let scene = 'running';
+    let filter = 'all';
+    let toastTimer;
+    const logs = [
+      { time: '20:16:42', source: 'gateway', level: 'good', message: '网关已启动，监听 127.0.0.1:8787' },
+      { time: '20:16:41', source: 'desktop', level: 'good', message: 'Desktop CDP 已连接：127.0.0.1:49397' },
+      { time: '20:16:40', source: 'desktop', level: 'good', message: '检测到 Codex Desktop 主页面' },
+      { time: '20:16:39', source: 'launcher', level: 'good', message: '控制台已启动，开始监控本机服务' }
+    ];
+    function toast(message) { const box = $('toast'); box.textContent = message; box.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { box.hidden = true; }, 3200); }
+    function addLog(source, message, level = 'good') { logs.unshift({ time: new Date().toLocaleTimeString('zh-CN', { hour12: false }), source, message, level }); renderLogs(); }
+    function renderLogs() {
+      const recent = $('recentEvents'); const full = $('logList'); recent.replaceChildren(); full.replaceChildren();
+      for (const entry of logs.slice(0, 3)) {
+        const row = document.createElement('div'); row.className = 'event ' + (entry.level === 'good' ? '' : entry.level);
+        const time = document.createElement('time'); time.textContent = entry.time.slice(0, 5);
+        const dot = document.createElement('i'); dot.setAttribute('aria-hidden', 'true');
+        const message = document.createElement('span'); message.textContent = entry.message;
+        row.append(time, dot, message); recent.append(row);
+      }
+      for (const entry of logs.filter((item) => filter === 'all' || item.source === filter)) {
+        const row = document.createElement('div'); row.className = 'log-row ' + (entry.level === 'good' ? '' : entry.level);
+        const time = document.createElement('time'); time.textContent = entry.time;
+        const source = document.createElement('b'); source.textContent = entry.source === 'gateway' ? '网关' : entry.source === 'desktop' ? 'Desktop' : '启动器';
+        const message = document.createElement('span'); message.textContent = entry.message;
+        row.append(time, source, message); full.append(row);
+      }
+    }
+    function renderScene() {
+      const data = scenes[scene];
+      $('sceneSelect').value = scene;
+      $('heroTitle').textContent = data.hero; $('heroDetail').textContent = data.detail;
+      $('heroIcon').className = 'hero-icon' + (data.tone === 'good' ? '' : ' ' + data.tone);
+      $('heroIcon').textContent = data.tone === 'good' ? '✓' : data.tone === 'warn' ? '!' : '×';
+      $('heroPrimary').textContent = data.primary; $('heroPrimary').dataset.action = data.action;
+      $('desktopBadge').textContent = data.desktop; $('desktopBadge').className = 'badge' + (['已停止', '需重启'].includes(data.desktop) ? ' warn' : '');
+      $('desktopProcess').textContent = data.desktopProcess; $('desktopOperation').textContent = data.desktopOperation;
+      $('gatewayBadge').textContent = data.gateway; $('gatewayBadge').className = 'badge' + (data.gateway === '启动失败' ? ' bad' : data.gateway === '已停止' ? ' warn' : '');
+      $('gatewayProcess').textContent = data.gatewayProcess; $('gatewayConnection').textContent = data.gatewayConnection;
+      $('checkedAt').textContent = '刚刚检查 · ' + new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
+      const desktopReady = ['running', 'desktopOnly', 'conflict'].includes(scene);
+      const gatewayReady = ['running', 'disconnected'].includes(scene);
+      document.querySelector('[data-action="startDesktop"]').disabled = desktopReady || scene === 'needsRestart';
+      document.querySelector('[data-action="restartDesktop"]').disabled = scene === 'stopped';
+      document.querySelector('[data-action="stopDesktop"]').disabled = scene === 'stopped';
+      document.querySelector('[data-action="startGateway"]').disabled = gatewayReady || scene === 'conflict';
+      document.querySelector('[data-action="stopGateway"]').disabled = !gatewayReady;
+      document.querySelector('.card [data-action="openWeb"]').disabled = !gatewayReady;
+    }
+    function setView(view) {
+      for (const id of ['overview', 'logs', 'settings']) $(id).hidden = id !== view;
+      for (const button of document.querySelectorAll('[data-view]')) button.setAttribute('aria-current', button.dataset.view === view ? 'page' : 'false');
+      $('topTitle').textContent = view === 'overview' ? '控制台概览' : view === 'logs' ? '运行日志' : '设置';
+      $('trayMenu').hidden = true; $('trayButton').setAttribute('aria-expanded', 'false');
+    }
+    function act(action) {
+      if (action === 'refresh') { renderScene(); addLog('launcher', '已重新检查本机服务状态'); toast('状态已更新（模拟）'); return; }
+      if (action === 'openWeb') { toast('正式版会打开 http://127.0.0.1:8787/'); return; }
+      if (action === 'viewLogs') { setView('logs'); return; }
+      if (action === 'restartDesktop') { if (!window.confirm('请先在 Codex Desktop 保存工作。确认演示重启吗？')) return; scene = ['running', 'disconnected'].includes(scene) ? 'running' : scene === 'conflict' ? 'conflict' : 'desktopOnly'; addLog('desktop', 'Desktop 已重新启动并启用 CDP（模拟）'); }
+      if (action === 'stopDesktop') { if (!window.confirm('请先保存 Desktop 中的工作。确认演示停止吗？')) return; scene = scene === 'running' ? 'disconnected' : 'stopped'; addLog('desktop', 'Desktop 已停止（模拟）', 'warn'); }
+      if (action === 'startDesktop') { scene = scene === 'disconnected' ? 'running' : 'desktopOnly'; addLog('desktop', 'Desktop 已启动，CDP 已连接（模拟）'); }
+      if (action === 'startGateway') { scene = scene === 'stopped' ? 'disconnected' : 'running'; addLog('gateway', '网关已启动（模拟）'); }
+      if (action === 'stopGateway') { scene = scene === 'disconnected' ? 'stopped' : 'desktopOnly'; addLog('gateway', '网关已停止（模拟）', 'warn'); }
+      if (action === 'startAll') { if (scene === 'conflict') { toast('请先处理网关端口占用'); return; } if (scene === 'needsRestart') { toast('请先保存工作并重启 Desktop'); return; } scene = 'running'; addLog('launcher', 'Desktop 和网关已依次启动（模拟）'); }
+      renderScene(); toast('演示状态已更新，未操作真实服务');
+    }
+    document.querySelectorAll('[data-view]').forEach((button) => button.addEventListener('click', () => setView(button.dataset.view)));
+    document.querySelectorAll('[data-action]').forEach((button) => button.addEventListener('click', () => act(button.dataset.action)));
+    $('sceneSelect').addEventListener('change', (event) => { scene = event.target.value; renderScene(); toast('已切换演示场景'); });
+    $('themeButton').addEventListener('click', () => { document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; });
+    document.querySelectorAll('[data-filter]').forEach((button) => button.addEventListener('click', () => { filter = button.dataset.filter; document.querySelectorAll('[data-filter]').forEach((item) => item.classList.toggle('active', item === button)); renderLogs(); }));
+    $('copyLogs').addEventListener('click', async () => { const text = logs.filter((item) => filter === 'all' || item.source === filter).map((item) => `${item.time} [${item.source}] ${item.message}`).join('\n'); try { await navigator.clipboard.writeText(text); toast('可见日志已复制'); } catch { toast('当前浏览器不允许复制本地原型的内容'); } });
+    $('settingsForm').addEventListener('submit', (event) => { event.preventDefault(); const port = Number($('gatewayPort').value); const cdp = Number($('cdpPort').value); if (!Number.isInteger(port) || port < 1 || port > 65535 || !Number.isInteger(cdp) || cdp < 1 || cdp > 65535) { toast('端口必须在 1–65535 之间'); return; } $('gatewayAddress').textContent = $('gatewayHost').value + ':' + port; $('desktopAddress').textContent = '127.0.0.1:' + cdp; addLog('launcher', '设置已在原型中更新（未写入文件）'); toast('设置演示已更新，真实配置未改变'); });
+    $('trayButton').addEventListener('click', (event) => { event.stopPropagation(); const menu = $('trayMenu'); menu.hidden = !menu.hidden; $('trayButton').setAttribute('aria-expanded', String(!menu.hidden)); });
+    document.addEventListener('click', (event) => { if (!event.target.closest('.tray-wrap')) { $('trayMenu').hidden = true; $('trayButton').setAttribute('aria-expanded', 'false'); } });
+    document.querySelectorAll('[data-tray]').forEach((button) => button.addEventListener('click', () => { const key = button.dataset.tray; $('trayMenu').hidden = true; if (key === 'show') setView('overview'); else if (key === 'start') act('startAll'); else if (key === 'web') act('openWeb'); else if (key === 'stop') act('stopGateway'); else toast('正式版会退出并按设置处理托管的网关'); }));
+    renderScene(); renderLogs();
+  </script>
+</body>
+</html>
